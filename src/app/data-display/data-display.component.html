@@ -1,0 +1,37 @@
+  <form class="formOrder">
+    <div>
+      <label for="itemDropdown">Sélectionnez un item :</label>
+      <select id="itemDropdown" [(ngModel)]="selectedItemUrlName" (change)="selectItem()" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let item of items" [value]="item.url_name">{{ item.item_name }}</option>
+      </select>
+    </div>
+  
+    <div *ngIf="orders.length > 0">
+  <h2>Ordres liés à {{ selectedItemUrlName }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Platinum</th>
+        <th>Quantité</th>
+        <th>Date de création</th>
+        <th>Nom en jeu</th>
+        <th>Reputation</th>
+        <th>Platform</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orders">
+        <td>{{ order.id }}</td>
+        <td>{{ order.type }}</td>
+        <td>{{ order.platinum }}</td>
+        <td>{{ order.quantity }}</td>
+        <td>{{ order.createdAt }}</td>
+        <td>{{ order.user.ingameName }}</td>
+        <td>{{ order.user.reputation }}</td>
+        <td>{{ order.user.platform }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
