@@ -5,33 +5,90 @@
         <option *ngFor="let item of items" [value]="item.url_name">{{ item.item_name }}</option>
       </select>
     </div>
-  
-    <div *ngIf="orders.length > 0">
+
+<div class="container">
+  <div *ngIf="isLoadingOrders">
+    <p>Chargement en cours...</p>
+  </div>
+<div *ngIf="orders.length > 0; else noDataMessage">
   <h2>Ordres liés à {{ selectedItemUrlName }}</h2>
   <table>
     <thead>
       <tr>
-        <th>ID</th>
         <th>Type</th>
         <th>Platinum</th>
         <th>Quantité</th>
-        <th>Date de création</th>
         <th>Nom en jeu</th>
         <th>Reputation</th>
-        <th>Platform</th>
+        <th>Status</th>
+        <ng-container *ngIf="hasRank()">
+            <th>Rank</th>
+          </ng-container>
+        <th>Whisper</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of orders">
-        <td>{{ order.id }}</td>
+      <tr *ngFor="let order of orders; let i = index">
         <td>{{ order.type }}</td>
         <td>{{ order.platinum }}</td>
         <td>{{ order.quantity }}</td>
-        <td>{{ order.createdAt }}</td>
         <td>{{ order.user.ingameName }}</td>
         <td>{{ order.user.reputation }}</td>
-        <td>{{ order.user.platform }}</td>
+        <td>{{ order.user.status }}</td>
+        <ng-container *ngIf="hasRank()">
+            <td>{{ order.rank }}</td>
+          </ng-container>
+        <button (click)="copyText(order.user.ingameName, selectedItemName, order.platinum, i, false, order.rank)">Whisp</button>
+        <span *ngIf="whisperCopiedStates[i]" class="whisper-copied-message">Whisp copié !</span>
       </tr>
     </tbody>
   </table>
 </div>
+<ng-template #noDataMessage>
+    <p>Aucune donnée à afficher. Soit tous les utilisateurs de cet ordre sot déconnectés, soit ils correspondent pas aux autres critères.</p>
+  </ng-template>
+</div>
+
+<div>
+    <label for="severityInput">Severity(1,2,3,4,5) :</label>
+    <input id="severityInput" type="number" [(ngModel)]="severity" [ngModelOptions]="{standalone: true}">
+    <button (click)="detectAnomalies()">Détecter les anomalies</button>
+</div>
+
+<div *ngIf="detectedAnomalies.length > 0 ; else noAnomaly">
+    <h2>Anomalies détectées :</h2>
+    <table>
+      <thead>
+        <tr>
+            <th>Type</th>
+            <th>Platinum</th>
+            <th>Quantité</th>
+            <th>Nom en jeu</th>
+            <th>Reputation</th>
+            <th>Status</th>
+            <ng-container *ngIf="hasRank()">
+                <th>Rank</th>
+              </ng-container>
+            <th>Whisper</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let anomaly of detectedAnomalies; let i = index">
+            <td>{{ anomaly.type }}</td>
+            <td>{{ anomaly.platinum }}</td>
+            <td>{{ anomaly.quantity }}</td>
+            <td>{{ anomaly.user.ingameName }}</td>
+            <td>{{ anomaly.user.reputation }}</td>
+            <td>{{ anomaly.user.status }}</td>
+            <ng-container *ngIf="hasRank()">
+                <td>{{ anomaly.rank }}</td>
+              </ng-container>
+            <button (click)="copyText(anomaly.user.ingameName, selectedItemName, anomaly.platinum, i, true, anomaly.rank)">Whisp</button>
+            <span *ngIf="whisperCopiedStates[i + orders.length]" class="whisper-copied-message">Whisp copié !</span>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <ng-template #noAnomaly>
+    <p>Aucune anomalie en dessous de la moyenne pour cet item détectée.</p>
+  </ng-template>
